@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- fragments/student-result-modal.html -->
+    <div th:fragment="resultContent">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Quiz Title</th>
+                    <th>Score</th>
+                    <th>Submitted At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td th:text="${result.quiz.title}"></td>
+                    <td th:text="${result.score}"></td>
+                    <td th:text="${result.submittedAt}"></td>
+                    <td>
+                        <a th:href="@{'/student/quiz/retake/' + ${result.id} + '/' + ${result.quiz.quizId}}">Retake</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>

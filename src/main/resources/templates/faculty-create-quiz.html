@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Faculty - Index</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link href="/assets/css/styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .question-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            height: 100%;
+        }
+
+        .question-block h5 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-block .form-label {
+            font-size: 0.85rem;
+        }
+
+        .question-block .form-control,
+        .question-block .form-select {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .remove-btn {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+        }
+    </style>
+
+    <script>
+        let questionIndex = 1;
+
+        // Add Question Function
+        function addQuestion() {
+            const container = document.getElementById("accordionQuestions");
+
+            const newQuestion = document.createElement("div");
+            newQuestion.classList.add("accordion-item");
+
+            newQuestion.innerHTML = `
+            <h2 class="accordion-header" id="heading-${questionIndex}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${questionIndex}" aria-expanded="true" aria-controls="collapse-${questionIndex}">
+                    Question ${questionIndex + 1}
+                </button>
+            </h2>
+            <div id="collapse-${questionIndex}" class="accordion-collapse collapse" aria-labelledby="heading-${questionIndex}" data-bs-parent="#accordionQuestions">
+                <div class="accordion-body">
+                    <div class="mb-2">
+                        <label class="form-label">Text</label>
+                        <input type="text" class="form-control" name="questions[${questionIndex}].text" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="questions[${questionIndex}].type" onchange="toggleOptions(this, ${questionIndex})">
+                            <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                            <option value="TEXT">Text</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2" id="options-block-${questionIndex}">
+                        <label class="form-label">Options (comma-separated)</label>
+                        <input type="text" class="form-control" name="questions[${questionIndex}].options">
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Correct Answer</label>
+                        <input type="text" class="form-control" name="questions[${questionIndex}].correctAnswer" required>
+                    </div>
+
+                    <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="removeQuestion(this)">Remove</button>
+                </div>
+            </div>
+        `;
+
+            container.appendChild(newQuestion);
+            questionIndex++;
+        }
+
+        // Remove Question Function with Renumbering
+        function removeQuestion(button) {
+            const questionItem = button.closest(".accordion-item");
+            questionItem.remove();
+
+            // Get all remaining question items
+            const allQuestions = document.querySelectorAll(".accordion-item");
+
+            // Renumber the questions
+            allQuestions.forEach((item, index) => {
+                const questionNumber = index + 1;  // The new question number
+                const button = item.querySelector(".accordion-button");
+                const collapseDiv = item.querySelector(".accordion-collapse");
+                const headerId = button.getAttribute("id").split("-")[1];
+                const collapseId = collapseDiv.getAttribute("id").split("-")[1];
+
+                // Update the question number in the button's text
+                button.innerHTML = `Question ${questionNumber}`;
+
+                // Update the IDs for the header and collapse div to reflect the new question number
+                button.setAttribute("aria-controls", `collapse-${questionNumber}`);
+                button.setAttribute("data-bs-target", `#collapse-${questionNumber}`);
+                item.querySelector(".accordion-collapse").setAttribute("id", `collapse-${questionNumber}`);
+                item.querySelector(".accordion-header").setAttribute("id", `heading-${questionNumber}`);
+            });
+
+            // Decrement the global question index after removing
+            questionIndex = allQuestions.length + 1;
+        }
+
+        // Toggle Options for Multiple Choice
+        function toggleOptions(select, index) {
+            const optionsDiv = document.getElementById(`options-block-${index}`);
+            optionsDiv.style.display = select.value === 'MULTIPLE_CHOICE' ? 'block' : 'none';
+        }
+    </script>
+
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <!-- Navbar Brand-->
+        <a class="navbar-brand ps-3" th:href="@{/faculty/index}">STMS</a>
+        <!-- Sidebar Toggle-->
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
+                class="fas fa-bars"></i></button>
+        <!-- Navbar Search-->
+        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            <div class="input-group">
+                <a th:href="@{/faculty/course/create}" class="btn btn-primary"
+                    style="background-color: #ffffff; border-color: #264152; color: #264152;">Create New
+                    Tutor Session</a>
+            </div>
+        </form>
+        <!-- Navbar-->
+        <ul class=" navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <li class="nav-item">
+                <a class="nav-link" id="navbarDropdown" th:href="@{/logout}" role="button" aria-expanded="false"
+                    onclick="return confirm('Are you sure you want to logout?')"><i class="bi bi-box-arrow-right"
+                        style="font-size: 25px;"></i></a>
+            </li>
+        </ul>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Dashboard</div>
+                        <a class="nav-link" th:href="@{/faculty/index}">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Manage Sessions
+                        </a>
+                        <div class="sb-sidenav-menu-heading">Classes</div>
+                        <ul style="list-style: none; margin-left: -32px;" th:each="tutorSession : ${tutorSessions}">
+                            <li style="margin-top: -10px;">
+                                <a class="nav-link" th:href="@{/faculty/course/manage/{id}(id=${tutorSession.id})}"
+                                    th:text="${tutorSession.course_code}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    <span th:text="${user.firstname} + ' ' + ${user.lastname} + ' ' + '(' + ${role} + ')' "></span>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <div class="container mt-4">
+                        <h3 class="mb-3">Create Quiz for <span th:text="${tutorSession.course_name}"></span></h3>
+
+                        <form th:action="@{/faculty/course/{sessionId}/quiz/save(sessionId=${tutorSession.id})}"
+                            th:object="${quizForm}" method="post">
+
+                            <div class="mb-3">
+                                <label class="form-label" style="width: 40%;">Quiz Title</label>
+                                <input type="text" class="form-control" placeholder="Enter name of quiz"
+                                    th:field="*{title}" required />
+                            </div>
+
+                            <!-- Accordion to hold question cards -->
+                            <div class="accordion" id="accordionQuestions">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading-0">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse-0" aria-expanded="true"
+                                            aria-controls="collapse-0">
+                                            Question 1
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-0" class="accordion-collapse collapse" aria-labelledby="heading-0"
+                                        data-bs-parent="#accordionQuestions">
+                                        <div class="accordion-body">
+                                            <div class="mb-2">
+                                                <label class="form-label">Text</label>
+                                                <input type="text" class="form-control" name="questions[0].text"
+                                                    required>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label class="form-label">Type</label>
+                                                <select class="form-select" name="questions[0].type"
+                                                    onchange="toggleOptions(this, 0)">
+                                                    <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                                                    <option value="TEXT">Text</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-2" id="options-block-0">
+                                                <label class="form-label">Options (comma-separated)</label>
+                                                <input type="text" class="form-control" name="questions[0].options">
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label class="form-label">Correct Answer</label>
+                                                <input type="text" class="form-control"
+                                                    name="questions[0].correctAnswer" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addQuestion()"
+                                style="margin-top: 10px;">+ Add Question</button><br />
+                            <center><button type="submit" class="btn btn-primary">Save Quiz</button></center>
+                        </form>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                </div>
+            </main>
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                        <div>
+                            <a href="#">Privacy Policy</a>
+                            &middot;
+                            <a href="#">Terms &amp; Conditions</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="/assets/js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="/assets/demo/chart-area-demo.js"></script>
+    <script src="/assets/demo/chart-bar-demo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+        crossorigin="anonymous"></script>
+    <script src="/assets/js/datatables-simple-demo.js"></script>
+</body>
+
+</html>

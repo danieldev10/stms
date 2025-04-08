@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty - Quizes</title>
+</head>
+
+<body>
+
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="quiz : ${quizzes}">
+                    <td th:text="${quiz.title}"></td>
+                    <td>
+                        <a th:href="@{/faculty/quiz/{quizId}/questions(quizId=${quiz.quizId})}">See Questions</a>
+                        <a th:href="@{/faculty/quiz/{quizId}/edit(quizId=${quiz.quizId})}">Edit Quiz</a>
+                        | <a th:href="@{/faculty/quiz/{quizId}/delete(quizId=${quiz.quizId})}"
+                            onclick="return confirm('Are you sure you want to delete this quiz?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

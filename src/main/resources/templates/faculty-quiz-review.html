@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Review</title>
+</head>
+
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Question</th>
+                <th>Answer</th>
+                <th>Review</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="result : ${quizResults}">
+                <td th:text="${result.student.username}"></td>
+                <td th:each="question : ${result.quiz.questions}">
+                    <form th:action="@{/faculty/quiz/{quizId}/review(quizId=${result.quiz.quizId})}" method="post">
+                        <div th:if="${question.type == 'TEXT'}">
+                            <p th:text="${question.text}"></p>
+                            <p th:text="${result.answerMap[question.id]}"></p>
+                            <select th:name="'reviewedAnswers[' + ${question.id} + ']'">
+                                <option value="CORRECT" th:selected="${'CORRECT' == result.answerMap[question.id]}">
+                                    Correct</option>
+                                <option value="INCORRECT" th:selected="${'INCORRECT' == result.answerMap[question.id]}">
+                                    Incorrect</option>
+                            </select>
+                        </div>
+                        <input type="submit" value="Submit Review">
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>

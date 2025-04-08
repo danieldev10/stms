@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Courses</title>
+</head>
+
+<body>
+    <span><a th:href="@{/faculty/course/create}">Create New Tutor Session</a></span><br><br>
+    <h3>Your Tutor Sessions</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Course Code</th>
+                <th>Description</th>
+                <th>Meeting Schedule</th>
+                <th>Meeting Medium</th>
+                <th>Location</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="tutorsession : ${tutorSessions}">
+                <td th:text="${tutorsession.course_name}"></td>
+                <td th:text="${tutorsession.course_code}"></td>
+                <td th:text="${tutorsession.description}"></td>
+                <td th:text="${tutorsession.meeting_schedule}"></td>
+                <td th:text="${tutorsession.meeting_medium}"></td>
+                <td th:text="${tutorsession.location}"></td>
+                <td>
+                    <a th:href="@{/faculty/course/delete/{id}(id=${tutorsession.id})}"
+                        onclick="return confirm('Are you sure you want to delete this session?');">
+                        <button style="color: white; background-color: red; border: none; padding: 5px;">Delete</button>
+                    </a>
+
+                    <a th:href="@{/faculty/course/manage/{id}(id=${tutorsession.id})}">
+                        <button style="color: white; background-color: green; border: none; padding: 5px;">Manage
+                            Students</button>
+                    </a>
+                    | <a th:href="@{/faculty/course/{id}/quiz/create(id=${tutorsession.id})}">Create
+                        Quiz</a>
+                    | <a th:href="@{/faculty/course/{id}/quizes(id=${tutorsession.id})}">View
+                        Quizes</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
