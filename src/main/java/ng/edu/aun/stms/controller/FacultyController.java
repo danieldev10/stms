@@ -437,7 +437,7 @@ public class FacultyController {
             }
             questionService.save(question);
         }
-        return "redirect:/faculty/quiz/" + quizId + "/questions";
+        return "redirect:/faculty/quiz/" + quizId + "/edit";
     }
 
     @GetMapping("/faculty/quiz/question/{questionId}/edit")
