@@ -84,8 +84,8 @@ public class AuthController {
         session.setAttribute("username", user.getUsername());
         session.setAttribute("phonenumber", user.getPhone_number());
 
-        // twilioService.sendSms(user.getPhone_number(), "Your verification OTP is: " +
-        // otp);
+        twilioService.sendSms(user.getPhone_number(), "Your verification OTP is: " +
+                otp);
 
         redir.addFlashAttribute("message", "Registration successful! Please verify your account.");
         return "redirect:/verify";
@@ -114,7 +114,7 @@ public class AuthController {
             user.setOtp(newOtp);
             user.setOtpExpiryTime(System.currentTimeMillis() + (5 * 60 * 1000));
             userService.update(user);
-            // twilioService.sendSms(user.getPhone_number(), "Your new OTP is: " + newOtp);
+            twilioService.sendSms(user.getPhone_number(), "Your new OTP is: " + newOtp);
             return "redirect:/verify";
         }
 

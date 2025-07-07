@@ -105,12 +105,19 @@ public class FacultyController {
 
     @PostMapping("/faculty/course/create")
     public String saveCourse(@ModelAttribute("tutorSession") TutorSession tutorSession,
-            @RequestParam("day_of_week") String dayOfWeek, @RequestParam("start_time") String startTime,
-            @RequestParam("end_time") String endTime, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+            @RequestParam("day_of_week") String dayOfWeek,
+            @RequestParam("start_time") String startTime,
+            @RequestParam("end_time") String endTime,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
 
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime startLocalTime = LocalTime.parse(startTime, timeFormatter);
-        LocalTime endLocalTime = LocalTime.parse(endTime, timeFormatter);
+        LocalTime startLocalTime = parseTime(startTime);
+        LocalTime endLocalTime = parseTime(endTime);
+
+        if (startLocalTime == null || endLocalTime == null) {
+            model.addAttribute("error", "Invalid time format. Please use 24-hour format or ensure AM/PM is correct.");
+            return "faculty-create-course";
+        }
 
         List<TutorSession> existingSessions = tutorSessionService.findByCreator(userService.getCurrentUser());
 
@@ -122,6 +129,7 @@ public class FacultyController {
                     ||
                     (startLocalTime.equals(existingSession.getStart_time())
                             || endLocalTime.equals(existingSession.getEnd_time()))) {
+
                 model.addAttribute("error", "A session already exists on " + dayOfWeek + " with overlapping times.");
                 User user = userService.getCurrentUser();
                 model.addAttribute("user", user);
@@ -149,6 +157,22 @@ public class FacultyController {
         forumService.save(forum);
 
         return "redirect:/faculty/index";
+    }
+
+    private LocalTime parseTime(String timeStr) {
+        try {
+            // Try parsing 24-hour format first
+            DateTimeFormatter formatter24 = DateTimeFormatter.ofPattern("HH:mm");
+            return LocalTime.parse(timeStr, formatter24);
+        } catch (Exception e1) {
+            try {
+                // Try 12-hour format with AM/PM
+                DateTimeFormatter formatter12 = DateTimeFormatter.ofPattern("hh:mm a");
+                return LocalTime.parse(timeStr.toUpperCase(), formatter12);
+            } catch (Exception e2) {
+                return null;
+            }
+        }
     }
 
     @GetMapping("/faculty/courses")
